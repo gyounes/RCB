@@ -77,7 +77,7 @@ init([]) ->
     schedule_resend(),
 
     {ok, #state{actor=Actor,
-                metrics=trcb_base_config:get(lmetrics),
+                metrics=rcb_config:get(lmetrics),
                 to_be_ack_queue=ToBeAckQueue}}.
 
 %% @private
@@ -141,7 +141,7 @@ handle_info(check_resend, #state{actor=Actor, to_be_ack_queue=ToBeAckQueue0, met
                     rcb_util:send(TaggedMessage1, MembersList, Metrics, ?HANDLER),
 
                     dict:update(MessageDot,
-                                     fun({A, B, C, _D}) -> {A, B, C, trcb_base_util:get_timestamp()} end,
+                                     fun({A, B, C, _D}) -> {A, B, C, rcb_util:get_timestamp()} end,
                                      ToBeAckQueue);
                 false ->
                     %% Do nothing.

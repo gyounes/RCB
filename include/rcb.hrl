@@ -1,5 +1,5 @@
 -define(APP, rcb).
--define(METRICS_DEFAULT, true).
+-define(METRICS_DEFAULT, false).
 
 -define(PEER_SERVICE, partisan_peer_service).
 -define(PEER_SERVICE_MANAGER, partisan_default_peer_service_manager).
@@ -14,4 +14,12 @@
 -type message() :: term().
 -type timestamp() :: vclock:vclock().
 -type vclock() :: vclock:vclock().
--type timestamp_matrix() :: mclock:mclock().
+
+%% logging
+-ifdef(debug).
+-define(LOG(M), lager:info(M)).
+-define(LOG(M, A), lager:info(M, A)).
+-else.
+-define(LOG(_M), ok).
+-define(LOG(_M, _A), ok).
+-endif.

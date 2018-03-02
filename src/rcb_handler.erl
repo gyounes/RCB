@@ -27,7 +27,7 @@
 -export([start_link/0]).
 
 %% handler callbacks
--export([rcbcast/2,
+-export([rcbcast/1,
          rcbmemory/1,
          rcbfullmembership/1]).
 
@@ -64,19 +64,19 @@ rcbfullmembership(Nodes) ->
     gen_server:call(?MODULE, {rcbfullmembership, Nodes}, infinity).
 
 %% Broadcast message.
--spec rcbcast(message(), timestamp()) -> ok.
-rcbcast(MessageBody, VV) ->
-    gen_server:cast(?MODULE, {cbcast, MessageBody, VV}).
+-spec rcbcast(message()) -> ok.
+rcbcast(MessageBody) ->
+    gen_server:cast(?MODULE, {cbcast, MessageBody}).
 
 %% Receives a function to calculate rcb memory size
 -spec rcbmemory(term()) -> non_neg_integer().
 rcbmemory(CalcFunction) ->
     gen_server:call(?MODULE, {rcbmemory, CalcFunction}, infinity).
 
-%% Set delivery Fun.
+%% Set delivery Notification Fun.
 -spec rcbdelivery(term()) -> ok.
-rcbdelivery(Fun) ->
-    gen_server:call(?MODULE, {rcbdelivery, Fun}, infinity).
+rcbdelivery(Node) ->
+    gen_server:call(?MODULE, {rcbdelivery, Node}, infinity).
 
 %%%===================================================================
 %%% API
@@ -123,11 +123,14 @@ init([]) ->
 -spec handle_call(term(), {pid(), term()}, state_t()) ->
     {reply, term(), state_t()}.
 
-handle_call({rcbdelivery, Fun}, _From, State) ->
+handle_call({rcbdelivery, Node}, _From, State) ->
+    ?LOG("rcbdelivery registered to send to ~p", [Node]),
+    NotifDelvFun = fun({Origin, MsgVV, Msg}) ->
+        Node ! {delivery, Origin, MsgVV, Msg}
+    end,
 
-    {reply, ok, State#state{delivery_function=Fun}};
+    {reply, ok, State#state{delivery_function=NotifDelvFun}};
 
-%% @todo Update other actors when this is changed
 handle_call({rcbfullmembership, Nodes}, _From, State) ->
     Nodes1 = case lists:last(Nodes) of
         {_, _} ->
@@ -137,43 +140,44 @@ handle_call({rcbfullmembership, Nodes}, _From, State) ->
     end,
     {reply, ok, State#state{full_membership=Nodes1}};
 
-handle_call({tcbmemory, CalcFunction}, _From, State) ->
-    %% @todo 
+handle_call({rcbmemory, CalcFunction}, _From, State) ->
+    %% @todo
     %% calculate memory size
     Result = CalcFunction([]),
     {reply, Result, State}.
 
-%% @private
 -spec handle_cast(term(), state_t()) -> {noreply, state_t()}.
-handle_cast({cbcast, MessageBody, MessageVV},
+
+handle_cast({cbcast, MessageBody},
             #state{actor=Actor,
                    metrics=Metrics,
                    recv_cc=RecvCC0,
+                   delivery_function=Function,
                    gvv=GVV0,
                    full_membership=Members}=State) ->
 
     %% measure time start local
     T1 = erlang:system_time(microsecond),
 
-    %% Only send to others without me to deliver
-    %% as this message is already delievered
-    ToMembers = rcb_util:without_me(Members),
-
     GVV = vclock:increment(Actor, GVV0),
 
     %% Generate message.
     %% @todo rmv Actor; could infer it from Dot
-    Msg = {rcbcast, MessageVV, MessageBody, Actor},
+    Msg = {rcbcast, GVV, MessageBody, Actor},
     TaggedMsg = {?FIRST_RCBCAST_TAG, Msg},
 
+    ToMembers = rcb_util:without_me(Members),
+
     %% Add members to the queue of not ack messages
-    Dot = {Actor, vclock:get_counter(Actor, MessageVV)},
-    ?RESENDER:add_exactly_once_queue(Dot, {MessageVV, MessageBody, ToMembers}),
+    Dot = {Actor, vclock:get_counter(Actor, GVV)},
+    ?RESENDER:add_exactly_once_queue(Dot, {GVV, MessageBody, ToMembers}),
 
     RecvCC = causal_context:add_dot(Dot, RecvCC0),
 
     %% Transmit to membership.
     rcb_util:send(TaggedMsg, ToMembers, Metrics, ?HANDLER),
+
+    Function({Actor, GVV, MessageBody}),
 
     %% measure time end local
     T2 = erlang:system_time(microsecond),
@@ -223,7 +227,7 @@ handle_cast({rcbcast, MessageVV, MessageBody, MessageActor},
     T2 = erlang:system_time(microsecond),
 
     %% Generate message.
-    MessageAck = {tcbcast_ack, Dot, Actor},
+    MessageAck = {rcbcast_ack, Dot, Actor},
     TaggedMessageAck = {ack, MessageAck},
 
     %% Send ack back to message sender.

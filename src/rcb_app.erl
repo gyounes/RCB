@@ -28,7 +28,7 @@
 
 %% @doc Initialize the application.
 start(_StartType, _StartArgs) ->
-    case trcb_base_sup:start_link() of
+    case rcb_sup:start_link() of
         {ok, Pid} ->
             {ok, Pid};
         Other ->

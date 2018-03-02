@@ -26,7 +26,7 @@
 
 %% API
 -export([rcbdelivery/1,
-         rcbcast/2,
+         rcbcast/1,
          rcbmemory/1,
          rcbfullmembership/1]).
 
@@ -50,9 +50,9 @@ rcbdelivery(Node) ->
     ?HANDLER:rcbdelivery(Node).
 
 %% Broadcast message.
--spec rcbcast(message(), vclock()) -> ok.
-rcbcast(MessageBody, VV) ->
-    ?HANDLER:rcbcast(MessageBody, VV).
+-spec rcbcast(message()) -> ok.
+rcbcast(MessageBody) ->
+    ?HANDLER:rcbcast(MessageBody).
 
 %% Receives a function to calculate rcb memory size.
 -spec rcbmemory(term()) -> non_neg_integer().

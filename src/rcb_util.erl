@@ -35,8 +35,6 @@
 
 %% @private
 send({Tag, Msg}, Peers, Metrics, Module) when is_list(Peers) ->
-    %% @todo cast to myself
-    % [?PEER_SERVICE_MANAGER:cast_message(Peer, ?HANDLER, Msg) || Peer <- Peers],
     MySelf = node(),
     lists:foreach(
         fun(Peer) ->
