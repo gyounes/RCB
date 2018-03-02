@@ -1,0 +1,12 @@
+{application,coveralls,
+             [{registered,[]},
+              {description,"Coveralls for Erlang"},
+              {vsn,"1.4.0"},
+              {licenses,["BSD"]},
+              {modules,[coveralls,rebar3_coveralls,rebar_coveralls]},
+              {registred,[]},
+              {applications,[kernel,stdlib]},
+              {env,[{providers,[rebar3_coveralls]}]},
+              {maintainers,["Markus Ekholm"]},
+              {links,[{"Github",
+                       "https://github.com/markusn/coveralls-erl"}]}]}.

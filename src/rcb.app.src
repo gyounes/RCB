@@ -1,0 +1,13 @@
+{application,rcb,
+             [{description,"Reliable Causal Stable Broadcast."},
+              {vsn,"0.0.3"},
+              {registered,[]},
+              {maintainers,["Georges Younes"]},
+              {included_applications,[]},
+              {applications,[kernel,stdlib,crypto,lager,time_compat,
+                             rand_compat,partisan,types]},
+              {mod,{rcb_app,[]}},
+              {modules,[]},
+              {env,[{rcb,"data"}]},
+              {licenses,["Apache 2.0"]},
+              {links,[{"Github","https://github.com/gyounes/rcb"}]}]}.

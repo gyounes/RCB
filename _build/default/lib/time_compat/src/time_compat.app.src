@@ -1,0 +1,11 @@
+{application,time_compat,
+             [{description,"Erlang 18 time compatibility library."},
+              {vsn,"0.0.1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {modules,[]},
+              {env,[]},
+              {maintainers,["Chris Meiklejohn"]},
+              {licenses,["Apache 2.0"]},
+              {links,[{"Github",
+                       "https://github.com/lasp-lang/time_compat"}]}]}.
