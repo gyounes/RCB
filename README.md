@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/gyounes/rcb.svg?branch=master)](https://travis-ci.org/gyounes/rcb)
-[![Coverage Status](https://coveralls.io/repos/github/gyounes/rcb/badge.svg?branch=master)](https://coveralls.io/github/gyounes/rcb?branch=master)
+[![Build Status](https://travis-ci.org/gyounes/RCB.svg?branch=master)](https://travis-ci.org/gyounes/RCB)
+[![Coverage Status](https://coveralls.io/repos/github/gyounes/RCB/badge.svg?branch=master)](https://coveralls.io/github/gyounes/RCB?branch=master)
 
 
-# rcb
+# RCB
 __A Reliable Causal Broadcast (RCB) Middleware__
 
 ----------
