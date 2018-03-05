@@ -78,16 +78,16 @@ all() ->
 
 %% Test causal delivery with full membership
 default_causal_test1(Config) ->
-  test(Config, 5, 50, 50),
+  test(Config, 5, 50, 50, 0),
   ok.
 default_causal_test2(Config) ->
-  test(Config, 5, 50, 100),
+  test(Config, 5, 50, 100, 0),
   ok.
 default_causal_test3(Config) ->
-  test(Config, 5, 50, 200),
+  test(Config, 5, 50, 200, 0),
   ok.
 
-test(Config, NodesNumber, MaxMsgNumber, MaxRate) ->
+test(Config, NodesNumber, MaxMsgNumber, MaxRate, Latency) ->
 
   %% Use the default peer service manager.
   Manager = partisan_default_peer_service_manager,
@@ -98,7 +98,8 @@ test(Config, NodesNumber, MaxMsgNumber, MaxRate) ->
   %% Start nodes.
   Nodes = start(default_manager_test, Config,
                 [{partisan_peer_service_manager, Manager},
-                 {clients, Clients}]),
+                 {clients, Clients},
+                 {latency, Latency}]),
 
   %% start causal delivery and stability test
   fun_causal_test(Nodes, MaxMsgNumber, MaxRate),
@@ -138,6 +139,7 @@ start(_Case, _Config, Options) ->
 
     Servers = proplists:get_value(servers, Options, []),
     Clients = proplists:get_value(clients, Options, []),
+    Latency = proplists:get_value(latency, Options, 0),
 
     NodeNames = lists:flatten(Servers ++ Clients),
 
@@ -183,7 +185,9 @@ start(_Case, _Config, Options) ->
 
       ok = rpc:call(Node, application, set_env, [sasl, sasl_error_logger, false]),
 
-      ok = rpc:call(Node, application, set_env, [lager, log_root, NodeDir])
+      ok = rpc:call(Node, application, set_env, [lager, log_root, NodeDir]),
+
+      ok = rpc:call(Node, application, set_env, [?APP, rcb_latency, Latency])
 
    end,
   
