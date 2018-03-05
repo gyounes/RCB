@@ -35,6 +35,7 @@
 
 %% @private
 send({Tag, Msg}, Peers, Metrics, Module) when is_list(Peers) ->
+    Latency=rcb_config:get(rcb_latency),
     MySelf = node(),
     lists:foreach(
         fun(Peer) ->
@@ -42,6 +43,7 @@ send({Tag, Msg}, Peers, Metrics, Module) when is_list(Peers) ->
                 MySelf ->
                     gen_server:cast(Module, Msg);
                 _ ->
+                    timer:sleep(Latency),
                     ?PEER_SERVICE_MANAGER:cast_message(Peer, Module, Msg)
             end
         end,
