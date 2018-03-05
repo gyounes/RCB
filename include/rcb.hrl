@@ -1,5 +1,6 @@
 -define(APP, rcb).
 -define(METRICS_DEFAULT, false).
+-define(DEFAULT_LATENCY, 0). %% in milliseconds
 
 -define(PEER_SERVICE, partisan_peer_service).
 -define(PEER_SERVICE_MANAGER, partisan_default_peer_service_manager).
