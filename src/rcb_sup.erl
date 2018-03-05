@@ -60,13 +60,19 @@ init([]) ->
 configure() ->
     %% configure metrics
     configure_var("LMETRICS",
-                            lmetrics,
-                            ?METRICS_DEFAULT).
+        lmetrics,
+        ?METRICS_DEFAULT).
 
 %% @private
 configure_var(Env, Var, Default) ->
     To = fun(V) -> atom_to_list(V) end,
     From = fun(V) -> list_to_atom(V) end,
+    configure(Env, Var, Default, To, From).
+
+%% @private
+configure_int(Env, Var, Default) ->
+    To = fun(V) -> integer_to_list(V) end,
+    From = fun(V) -> list_to_integer(V) end,
     configure(Env, Var, Default, To, From).
 
 %% @private
