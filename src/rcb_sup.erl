@@ -61,7 +61,12 @@ configure() ->
     %% configure metrics
     configure_var("LMETRICS",
         lmetrics,
-        ?METRICS_DEFAULT).
+        ?METRICS_DEFAULT),
+
+    %% configure additional latency
+    configure_int("LATENCY",
+        rcb_latency,
+        ?DEFAULT_LATENCY).
 
 %% @private
 configure_var(Env, Var, Default) ->
